@@ -1,18 +1,18 @@
 fun main() {
     fun part1(input: List<String>): Int {
         return input
-            .map { Integer.parseInt(it) }
+            .map { it.toInt() }
             .windowed(2, 1)
-            .count { it[1] > it[0] }
+            .count { (a, b) -> a < b }
     }
 
     fun part2(input: List<String>): Int {
         return input
-            .map { Integer.parseInt(it) }
+            .map { it.toInt() }
             .windowed(3, 1)
             .map { it.sum() }
             .windowed(2, 1)
-            .count { it[1] > it[0] }
+            .count { (a, b) -> a < b }
     }
 
     // test if implementation meets criteria from the description, like:
