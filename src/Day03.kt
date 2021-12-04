@@ -11,20 +11,33 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        val parsed = input.map { it.map(Char::digitToInt) }
+
+        val o2 = findRating(parsed) { zeros, ones -> if (zeros <= ones) 1 else 0 }.joinToString("").toInt(2)
+        val co2 = findRating(parsed) { zeros, ones -> if (zeros <= ones) 0 else 1 }.joinToString("").toInt(2)
+
+        return o2 * co2
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day03_test")
     check(part1(testInput) == 198)
-    // check(part2(testInput) == 230)
+    check(part2(testInput) == 230)
 
     val input = readInput("Day03")
     println(part1(input))
     println(part2(input))
 }
 
+fun findRating(parsed: List<List<Int>>, pos: Int = 0, pred: (Int, Int) -> Int): List<Int> {
+    if (parsed.size == 1) return parsed.first()
 
-fun <T> List<List<T>>.transposed(): List<List<T>> {
-    return this.first().indices.map { index -> this.map { it[index] } }
+    val needle = parsed
+        .transposed()[pos]
+        .groupingBy { it }.eachCount()
+        .let {
+            pred(it.getOrDefault(0,0), it.getOrDefault(1,0))
+        }
+
+    return findRating(parsed.filter { it[pos] == needle }, pos + 1, pred)
 }
