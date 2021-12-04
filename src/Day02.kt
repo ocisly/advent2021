@@ -1,30 +1,53 @@
+sealed interface Instruction {
+    data class Forward(val amount: Int) : Instruction
+    data class Up(val amount: Int) : Instruction
+    data class Down(val amount: Int) : Instruction
+
+    companion object {
+        fun parse(input: String): Instruction {
+            val (i, a) = input.split(' ')
+            val amount = a.toInt()
+            return when (i) {
+                "forward" -> Forward(amount)
+                "down" -> Down(amount)
+                "up" -> Up(amount)
+                else -> error("invalid instruction")
+            }
+        }
+    }
+}
+
+data class Position(val depth: Int, val horizontal: Int)
+data class State(val pos: Position, val aim: Int)
+
 fun main() {
     fun part1(input: List<String>): Int {
-        val (x, y) = input.map { it.split(' ') }
-            .fold(listOf(0, 0)) { (oldA, oldB), (instruction, a) ->
-                val amount = a.toInt()
+        val (depth, horizontal) = input.map(Instruction::parse)
+            .fold(Position(0, 0)) { pos, instruction ->
                 when (instruction) {
-                    "forward" -> listOf(oldA, oldB + amount)
-                    "down" -> listOf(oldA + amount, oldB)
-                    "up" -> listOf(oldA - amount, oldB)
-                    else -> listOf(oldA, oldB)
+                    is Instruction.Forward -> pos.copy(horizontal=pos.horizontal + instruction.amount)
+                    is Instruction.Down -> pos.copy(depth=pos.depth + instruction.amount)
+                    is Instruction.Up -> pos.copy(depth=pos.depth - instruction.amount)
                 }
             }
-        return x * y
+        return depth * horizontal
     }
 
     fun part2(input: List<String>): Int {
-        val (depth, pos, _aim) = input.map { it.split(' ') }
-            .fold(listOf(0, 0, 0)) { (oldDepth, oldPos, oldAim), (instruction, a) ->
-                val amount = a.toInt()
+        val (depth, horizontal) = input.map(Instruction::parse)
+            .fold(State(Position(0, 0), 0)) { state, instruction ->
                 when (instruction) {
-                    "forward" -> listOf(oldDepth + oldAim * amount, oldPos + amount, oldAim)
-                    "down" -> listOf(oldDepth, oldPos, oldAim + amount)
-                    "up" -> listOf(oldDepth, oldPos, oldAim - amount)
-                    else -> listOf(oldDepth, oldPos, oldAim)
+                    is Instruction.Forward -> state.copy(
+                        pos = state.pos.copy(
+                            depth = state.pos.depth + state.aim * instruction.amount,
+                            horizontal = state.pos.horizontal + instruction.amount
+                        )
+                    )
+                    is Instruction.Down -> state.copy(aim = state.aim + instruction.amount)
+                    is Instruction.Up -> state.copy(aim = state.aim - instruction.amount)
                 }
-            }
-        return pos * depth
+            }.pos
+        return depth * horizontal
     }
 
     // test if implementation meets criteria from the description, like:
