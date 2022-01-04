@@ -20,7 +20,7 @@ fun main() {
 }
 
 private fun parseEdges(input: List<String>) =
-    input.map { it.split('-') }.flatMap { (a, b) -> listOf(Edge(a, b), Edge(b, a)) }
+    input.map { it.split('-') }.flatMap { (a, b) -> listOf(a to b, b to a) }
 
 private fun findAllPaths(
     edges: List<Edge>,
