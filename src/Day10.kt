@@ -1,5 +1,5 @@
 fun main() {
-    val map = mapOf(
+    val pairs = mapOf(
         '(' to ')',
         '[' to ']',
         '<' to '>',
@@ -14,13 +14,13 @@ fun main() {
             '>' to 25137,
         )
         return input.mapNotNull { line ->
-            val stack: ArrayDeque<Char> = ArrayDeque()
+            val stack = ArrayDeque<Char>()
             for (char in line) {
-                if (map.containsKey(char)) {
+                if (pairs.containsKey(char)) {
                     stack.addFirst(char)
                 } else {
                     val last = stack.removeFirst()
-                    if (char != map[last]) {
+                    if (char != pairs[last]) {
                         return@mapNotNull score[char]
                     }
                 }
@@ -37,28 +37,23 @@ fun main() {
             '>' to 4,
         )
         return input.mapNotNull { line ->
-            val stack: ArrayDeque<Char> = ArrayDeque()
-            for (char in line) {
-                if (map.containsKey(char)) {
+            val stack = ArrayDeque<Char>()
+            line.forEach { char ->
+                if (pairs.containsKey(char)) {
                     stack.addFirst(char)
                 } else {
-                    val last = stack.removeFirstOrNull()
-                    if (last != null && char != map[last]) {
+                    val last = stack.removeFirst()
+                    if (char != pairs[last]) {
                         return@mapNotNull null
                     }
                 }
             }
             stack
         }.map {
-            var total = 0L
-            for (c in it.takeWhile { c -> score.contains(map[c]) }) {
-                total *= 5
-                total += score.getValue(map.getValue(c))
-            }
-            total
-        }.sorted().run {
-            this[size / 2]
-        }
+            it.map(pairs::getValue)
+                .takeWhile(score::contains)
+                .fold(0L) { total, char -> total * 5 + score.getValue(char) }
+        }.sorted().run { this[size / 2] }
     }
 
     // test if implementation meets criteria from the description, like:
